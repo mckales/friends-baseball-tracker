@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Baseball Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .performance-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .performance-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .player-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .player-info p {
+            font-size: 13px;
+            color: var(--gray-700);
+            margin: 0;
+        }
+
+        .player-school {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .stat-rows {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-box {
+            background: var(--gray-50);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .recent-performance {
+            background: var(--gray-50);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--gray-700);
+            border-left: 3px solid var(--primary);
+        }
+
+        .season-status {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .profile-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-section h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-item-label {
+            font-size: 12px;
+            color: var(--gray-700);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🔥 FBT</h1>
+            <div class="header-badge">Following 10</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('feed')">Feed</button>
+            <button class="tab-btn" onclick="switchTab('profile')">Profile</button>
+        </div>
+
+        <!-- FEED TAB -->
+        <div id="feed" class="tab-content active">
+            <div class="season-status">
+                ⚾ 2026 Season hasn't started yet • Stats update as games are played
+            </div>
+            <div id="feedContainer"></div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="profile" class="tab-content">
+            <div class="profile-section">
+                <h2>Your Friends (10 Following)</h2>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-item-value">5</div>
+                        <div class="stat-item-label">Pitchers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-value">5</div>
+                        <div class="stat-item-label">Position</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2>Schools Represented</h2>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Western Carolina</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Navy</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Brown</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Indiana</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Houston</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• NC State</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Lafayette</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Kennesaw State</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Georgia State</div>
+                    <div style="padding: 8px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">• Georgetown</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2>Notification Rules</h2>
+                <div style="font-size: 13px; color: var(--gray-700); line-height: 1.8;">
+                    <strong style="color: var(--primary);">Hitters:</strong> Notified on any hit<br>
+                    <strong style="color: var(--primary);">Pitchers:</strong> Notified when they pitch<br>
+                    <br>
+                    Get real-time updates throughout the 2026 season!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const playerData = [
+            {
+                id: 'jabaley',
+                name: 'Davis Jabaley',
+                position: 'RHP',
+                school: 'Western Carolina',
+                type: 'pitcher',
+                seasonStats: {
+                    'G': '0',
+                    'GS': '0',
+                    'IP': '0.0',
+                    'K': '0',
+                    'ERA': '—',
+                    'W-L': '0-0'
+                }
+            },
+            {
+                id: 'loudon',
+                name: 'John Loudon',
+                position: 'OF',
+                school: 'Navy',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'berryman',
+                name: 'Porter Berryman',
+                position: 'LHP',
+                school: 'Brown',
+                type: 'pitcher',
+                seasonStats: {
+                    'G': '0',
+                    'GS': '0',
+                    'IP': '0.0',
+                    'K': '0',
+                    'ERA': '—',
+                    'W-L': '0-0'
+                }
+            },
+            {
+                id: 'mador',
+                name: 'Miles Mador',
+                position: 'C',
+                school: 'Indiana',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'vanderheyden',
+                name: 'Mikey Vanderheyden',
+                position: 'C',
+                school: 'Houston',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'kitchings',
+                name: 'Aiden Kitchings',
+                position: 'RHP',
+                school: 'NC State',
+                type: 'pitcher',
+                seasonStats: {
+                    'G': '0',
+                    'GS': '0',
+                    'IP': '0.0',
+                    'K': '0',
+                    'ERA': '—',
+                    'W-L': '0-0'
+                }
+            },
+            {
+                id: 'ebbs',
+                name: 'Liam Ebbs',
+                position: '1B',
+                school: 'Lafayette',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'mccollum',
+                name: 'Grayson McCollum',
+                position: 'SS',
+                school: 'Kennesaw State',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'nolasco',
+                name: 'Yenli Nolasco',
+                position: 'TBD',
+                school: 'Georgia State',
+                type: 'hitter',
+                seasonStats: {
+                    'AVG': '.000',
+                    'H': '0',
+                    'AB': '0',
+                    'R': '0',
+                    'RBI': '0',
+                    'HR': '0'
+                }
+            },
+            {
+                id: 'hendrix',
+                name: 'Charlie Hendrix',
+                position: 'RHP',
+                school: 'Georgetown',
+                type: 'pitcher',
+                seasonStats: {
+                    'G': '0',
+                    'GS': '0',
+                    'IP': '0.0',
+                    'K': '0',
+                    'ERA': '—',
+                    'W-L': '0-0'
+                }
+            }
+        ];
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function renderFeed() {
+            const feedContainer = document.getElementById('feedContainer');
+            feedContainer.innerHTML = '';
+
+            playerData.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'performance-card';
+                card.onclick = () => showDetail(player.id);
+
+                let statsHtml = '';
+                for (const [key, value] of Object.entries(player.seasonStats)) {
+                    statsHtml += `<div class="stat-box">
+                        <span class="stat-value">${value}</span>
+                        <span class="stat-label">${key}</span>
+                    </div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="player-header">
+                        <div class="player-info">
+                            <h3>${player.name}</h3>
+                            <p>${player.position} • ${player.type === 'pitcher' ? 'Pitcher' : 'Hitter'}</p>
+                            <span class="player-school">${player.school}</span>
+                        </div>
+                    </div>
+                    <div class="stat-rows">
+                        ${statsHtml}
+                    </div>
+                    <div class="recent-performance">
+                        ⏳ Awaiting 2026 season start • Updates coming live
+                    </div>
+                `;
+
+                feedContainer.appendChild(card);
+            });
+        }
+
+        function showDetail(playerId) {
+            const player = playerData.find(p => p.id === playerId);
+            if (!player) return;
+
+            let statsHtml = '';
+            for (const [key, value] of Object.entries(player.seasonStats)) {
+                statsHtml += `<div style="background: #f0f0f0; padding: 8px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 16px; font-weight: bold; color: #1e40af;">${value}</div>
+                    <div style="font-size: 11px; color: #666;">${key}</div>
+                </div>`;
+            }
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: center; justify-content: center;';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                    <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; width: 30px; height: 30px;">✕</button>
+                    <h2 style="margin-bottom: 4px;">${player.name}</h2>
+                    <p style="color: #666; margin: 0 0 16px 0;">${player.position} • ${player.school}</p>
+                    
+                    <h3 style="font-size: 14px; color: #1e40af; margin-bottom: 12px;">2026 Season Stats</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                        ${statsHtml}
+                    </div>
+                    
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px; font-size: 13px; color: #92400e;">
+                        Season hasn't started yet. Stats will update as games are played throughout 2026!
+                    </div>
+                </div>
+            `;
+
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+            document.body.appendChild(modal);
+        }
+
+        // Initial render
+        renderFeed();
+    </script>
+</body>
+</html>
